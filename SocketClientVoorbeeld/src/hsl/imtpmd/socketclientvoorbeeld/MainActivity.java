@@ -10,8 +10,8 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 
 import android.app.Activity;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.TextView;
@@ -24,7 +24,7 @@ public class MainActivity extends Activity implements Runnable
 	private BufferedReader serverReader;
 	
 	private String serverMessage;
-	private String messageToSend;
+	private String messageToSend = "this is an initial text";
 	private boolean interactWithServer;
 	
 	private TextView feedbackText;
@@ -81,14 +81,28 @@ public class MainActivity extends Activity implements Runnable
 			
 			catch (IOException e)
 			{
+				Log.e("debug", e.toString(), e);
 				sendFeedbackToUI( "failed to grab outputstream from server socket: " + e.getMessage() );
+				interactWithServer = false;
 			}
 	
 			int aliveCounter = 0;
 			while( interactWithServer == true )
 			{
-				sendFeedbackToUI( "server interaction alive (" + aliveCounter + " seconds)" );
+				//sendFeedbackToUI( "server interaction alive (" + aliveCounter + " seconds)" );
 				aliveCounter++;
+				
+				if( messageToSend != null )
+				{
+					sendFeedbackToUI( "attempting to send message" );
+					
+					serverWriter.println( "test message" );
+					sendFeedbackToUI( "message written" );
+					
+					messageToSend = null;
+				}
+				
+
 				
 				try
 				{
@@ -109,20 +123,8 @@ public class MainActivity extends Activity implements Runnable
 				{
 					sendFeedbackToUI( "failed to read message from server: " + e.getMessage() );
 				}
-			
 				
-				if( serverWriter != null )
-				{
-					if( messageToSend != null )
-					{
-						sendFeedbackToUI( "attempting to send message" );
-						
-						serverWriter.println( "test message" );
-						sendFeedbackToUI( "message written" );
-						
-						messageToSend = null;
-					}
-				}
+				
 				
 				try
 				{

@@ -60,9 +60,10 @@ public class SocketServerApp
 				
 				InputStreamReader inputStreamReader = new InputStreamReader( clientSocket.getInputStream() );
 				BufferedReader bufferedReader = new BufferedReader( inputStreamReader );
-				
+
+				area.setText( "client bericht ontvangen...\n" + area.getText() );
 				message = bufferedReader.readLine();
-				area.setText( message + "\n" + area.getText() );
+				area.setText( "client message is: " + message + "\n" + area.getText() );
 				
 				
 				OutputStreamWriter outputStreamWriter = new OutputStreamWriter( clientSocket.getOutputStream() );
