@@ -19,18 +19,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
-        <EditText
+        <TextView
             android:id="@+id/editText2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:ems="10"
             android:inputType="textPersonName"
-            android:text="Naam" >
-
-            <requestFocus />
-        </EditText>
-
+            android:text="Naam" />
+ 
         <Button
             android:id="@+id/button1"
             android:layout_width="match_parent"
@@ -38,11 +35,20 @@
             android:layout_weight="1"
             android:onClick="verzendVraag"
             android:text="Verzend vraag" />
-
     </LinearLayout>
 
     <TextView
         android:id="@+id/feedbacktext"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:lines="10"
+        android:maxLines="10"
+        android:scrollbarAlwaysDrawVerticalTrack="true"
+        android:text="Large Text"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TextView
+        android:id="@+id/feedbacktext2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:lines="10"

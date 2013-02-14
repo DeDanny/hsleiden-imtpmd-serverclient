@@ -13,17 +13,34 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
-public class SocketServerApp
+public class SocketServerApp implements Runnable
 {
-
-	private static ServerSocket	serverSocket;
-	private static Socket		clientSocket;
-
-	private static String		message;
-	private static JTextArea	area;
 
 	public static void main(String[] args)
 	{
+
+		try
+		{
+			ServerSocket serverSocket = new ServerSocket(4444);
+			while (true)
+			{
+				SocketServerApp socketServerApp = new SocketServerApp(serverSocket.accept());
+				new Thread(socketServerApp).start();
+			}
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	private Socket		socket;
+	private String		message;
+	private JTextArea	area;
+
+	public SocketServerApp(Socket socket)
+	{
+		this.socket = socket;
 		area = new JTextArea();
 
 		JPanel panel = new JPanel();
@@ -34,61 +51,56 @@ public class SocketServerApp
 		frame.add(panel);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
-
-		try
-		{
-			serverSocket = new ServerSocket(4444);
-			runServer();
-		}
-
-		catch (IOException e)
-		{
-			area.setText("Kan niet naar port 4444 luisteren");
-		}
 	}
 
-	public static void runServer()
+	@Override
+	public void run()
 	{
 		area.setText("reading port 4444 for messages");
 
+		InputStreamReader inputStreamReader = null;
+		try
+		{
+			inputStreamReader = new InputStreamReader(socket.getInputStream());
+		}
+		catch (IOException e1)
+		{
+			e1.printStackTrace();
+		}
+		BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+		OutputStreamWriter outputStreamWriter = null;
+		try
+		{
+			outputStreamWriter = new OutputStreamWriter(socket.getOutputStream());
+		}
+		catch (IOException e2)
+		{
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
+		PrintWriter writer = new PrintWriter(bufferedWriter, true);
+
 		while (true)
 		{
+			area.setText("client bericht ontvangen...\n" + area.getText());
 			try
 			{
-
-				area.setText("Waiting...\n" + area.getText());
-				clientSocket = serverSocket.accept();
-
-				InputStreamReader inputStreamReader = new InputStreamReader(clientSocket.getInputStream());
-				BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-
-				area.setText("client bericht ontvangen...\n" + area.getText());
 				message = bufferedReader.readLine();
-				area.setText("client message is: " + message + "\n" + area.getText());
-
-				OutputStreamWriter outputStreamWriter = new OutputStreamWriter(clientSocket.getOutputStream());
-				BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
-				PrintWriter writer = new PrintWriter(bufferedWriter, true);
-
-				if (writer != null && writer.checkError() == false)
-				{
-					area.setText("sending message back to client " + clientSocket.getInetAddress().getHostAddress() + "\n" + area.getText());
-					writer.println("server heeft je bericht ontvangen\r\n");
-				}
-
-				writer.close();
 			}
-
-			catch (IOException e)
+			catch (IOException e1)
 			{
-				area.setText("Kan message niet lezen" + "\n" + area.getText());
-				System.out.println("Kan message niet lezen");
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 			}
+			area.setText("client message is: " + message + "\n" + area.getText());
 
-			catch (Exception e)
+			if (writer != null && writer.checkError() == false)
 			{
-				area.setText(e.getMessage());
-				System.out.println(e.getMessage());
+				area.setText("sending message back to client " + socket.getInetAddress().getHostAddress() + "\n" + area.getText());
+				writer.println("server heeft je bericht ontvangen" + message);
+				writer.flush();
 			}
 
 			try
@@ -101,6 +113,8 @@ public class SocketServerApp
 				area.setText("Thread interrupted during sleep." + "\n" + area.getText());
 				e.printStackTrace();
 			}
+
 		}
 	}
+
 }

@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 
 public class MainActivity extends Activity implements Runnable
@@ -25,10 +26,11 @@ public class MainActivity extends Activity implements Runnable
 	private BufferedReader	serverReader;
 
 	private String			serverMessage;
-	private String			messageToSend	= "this is an initial text";
+	private String			messageToSend;
 	private boolean			interactWithServer;
 
 	private TextView		feedbackText;
+	private TextView		feedbackText2;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -37,6 +39,7 @@ public class MainActivity extends Activity implements Runnable
 		setContentView(R.layout.activity_main);
 
 		feedbackText = (TextView) findViewById(R.id.feedbacktext);
+		feedbackText2 = (TextView) findViewById(R.id.feedbacktext2);
 
 		interactWithServer = true;
 		Thread connectToServerThread = new Thread(this);
@@ -53,8 +56,8 @@ public class MainActivity extends Activity implements Runnable
 
 	public void verzendVraag(View view)
 	{
-		messageToSend = "This is a test";
-		sendFeedbackToUI("message set up for sending");
+		messageToSend = ((EditText) findViewById(R.id.editText1)).getText().toString();
+		sendFeedbackToUI("message set up for sending: " + messageToSend);
 	}
 
 	@Override
@@ -86,16 +89,17 @@ public class MainActivity extends Activity implements Runnable
 			}
 
 			int aliveCounter = 0;
+			sendFeedbackToUI("Go");
 			while (interactWithServer == true)
 			{
-				//sendFeedbackToUI( "server interaction alive (" + aliveCounter + " seconds)" );
+				sendFeedbackToUI2("server interaction alive (" + aliveCounter + " seconds)");
 				aliveCounter++;
 
 				if (messageToSend != null)
 				{
 					sendFeedbackToUI("attempting to send message");
 
-					serverWriter.println("test message");
+					serverWriter.println(messageToSend);
 					sendFeedbackToUI("message written");
 
 					messageToSend = null;
@@ -109,7 +113,8 @@ public class MainActivity extends Activity implements Runnable
 
 							if (serverMessage != null)
 							{
-								sendFeedbackToUI(serverMessage);
+								sendFeedbackToUI("server: " + serverMessage);
+
 							}
 							sendFeedbackToUI("done reading server text");
 						}
@@ -123,7 +128,7 @@ public class MainActivity extends Activity implements Runnable
 				try
 				{
 					Thread.sleep(1000);
-					sendFeedbackToUI("done sleeping action !!");
+					sendFeedbackToUI2("done sleeping,  action time !!");
 				}
 
 				catch (InterruptedException e)
@@ -156,6 +161,19 @@ public class MainActivity extends Activity implements Runnable
 			public void run()
 			{
 				feedbackText.setText(message + "\n" + feedbackText.getText());
+			}
+		});
+	}
+
+	public void sendFeedbackToUI2(final String message)
+	{
+		runOnUiThread(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+				feedbackText2.setText(message + "\n" + feedbackText2.getText());
 			}
 		});
 	}
