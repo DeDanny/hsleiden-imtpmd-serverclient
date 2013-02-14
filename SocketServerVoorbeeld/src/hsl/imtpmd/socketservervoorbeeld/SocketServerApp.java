@@ -1,5 +1,7 @@
 package hsl.imtpmd.socketservervoorbeeld;
 
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -12,13 +14,25 @@ import java.net.Socket;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
+import javax.swing.WindowConstants;
 
-public class SocketServerApp implements Runnable
+public class SocketServerApp implements Runnable, WindowListener
 {
 
 	public static void main(String[] args)
 	{
+		JTextArea area = new JTextArea();
 
+		JPanel panel = new JPanel();
+		panel.add(area);
+
+		JFrame frame = new JFrame();
+		frame.setBounds(100, 100, 200, 100);
+		frame.add(panel);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setVisible(true);
+
+		area.setText("Server Active");
 		try
 		{
 			ServerSocket serverSocket = new ServerSocket(4444);
@@ -37,6 +51,8 @@ public class SocketServerApp implements Runnable
 	private Socket		socket;
 	private String		message;
 	private JTextArea	area;
+	private JFrame		frame;
+	boolean				loop	= true;
 
 	public SocketServerApp(Socket socket)
 	{
@@ -46,10 +62,11 @@ public class SocketServerApp implements Runnable
 		JPanel panel = new JPanel();
 		panel.add(area);
 
-		JFrame frame = new JFrame();
+		frame = new JFrame();
 		frame.setBounds(100, 100, 200, 100);
 		frame.add(panel);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		frame.addWindowListener(this);
 		frame.setVisible(true);
 	}
 
@@ -82,7 +99,7 @@ public class SocketServerApp implements Runnable
 		BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
 		PrintWriter writer = new PrintWriter(bufferedWriter, true);
 
-		while (true)
+		while (loop)
 		{
 			area.setText("client bericht ontvangen...\n" + area.getText());
 			try
@@ -91,8 +108,12 @@ public class SocketServerApp implements Runnable
 			}
 			catch (IOException e1)
 			{
-				// TODO Auto-generated catch block
+				loop = false;
 				e1.printStackTrace();
+			}
+			if (message == null)
+			{
+				loop = false;
 			}
 			area.setText("client message is: " + message + "\n" + area.getText());
 
@@ -110,11 +131,62 @@ public class SocketServerApp implements Runnable
 
 			catch (InterruptedException e)
 			{
+				loop = false;
 				area.setText("Thread interrupted during sleep." + "\n" + area.getText());
 				e.printStackTrace();
 			}
 
 		}
+
+		frame.setVisible(false);
+		frame.dispose();
 	}
 
+	@Override
+	public void windowActivated(WindowEvent arg0)
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void windowClosed(WindowEvent arg0)
+	{
+		loop = false;
+	}
+
+	@Override
+	public void windowClosing(WindowEvent arg0)
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void windowDeactivated(WindowEvent arg0)
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void windowDeiconified(WindowEvent arg0)
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void windowIconified(WindowEvent arg0)
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void windowOpened(WindowEvent arg0)
+	{
+		// TODO Auto-generated method stub
+
+	}
 }
