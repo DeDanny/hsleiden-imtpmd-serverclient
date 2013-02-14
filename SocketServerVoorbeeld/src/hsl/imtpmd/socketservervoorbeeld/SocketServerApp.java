@@ -1,11 +1,11 @@
 package hsl.imtpmd.socketservervoorbeeld;
 
-import java.io.PrintWriter;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -15,92 +15,90 @@ import javax.swing.JTextArea;
 
 public class SocketServerApp
 {
-	private static ServerSocket serverSocket;
-	private static Socket clientSocket;
-	
-	private static String message;
-	private static JTextArea area;
-	
-	
-	public static void main( String[] args )
+
+	private static ServerSocket	serverSocket;
+	private static Socket		clientSocket;
+
+	private static String		message;
+	private static JTextArea	area;
+
+	public static void main(String[] args)
 	{
 		area = new JTextArea();
-		
+
 		JPanel panel = new JPanel();
-		panel.add( area );
-		
+		panel.add(area);
+
 		JFrame frame = new JFrame();
-		frame.setBounds( 100, 100, 200, 100 );
-		frame.add( panel );
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE );
-		frame.setVisible( true );
-		
+		frame.setBounds(100, 100, 200, 100);
+		frame.add(panel);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setVisible(true);
+
 		try
 		{
-			serverSocket = new ServerSocket( 4444 );
+			serverSocket = new ServerSocket(4444);
 			runServer();
 		}
-		
-		catch( IOException e )
+
+		catch (IOException e)
 		{
-			area.setText( "Kan niet naar port 4444 luisteren" );
+			area.setText("Kan niet naar port 4444 luisteren");
 		}
 	}
-	
-	
+
 	public static void runServer()
 	{
-		area.setText( "reading port 4444 for messages" );
-		
-		while( true )
+		area.setText("reading port 4444 for messages");
+
+		while (true)
 		{
 			try
 			{
-				clientSocket = serverSocket.accept();
-				
-				InputStreamReader inputStreamReader = new InputStreamReader( clientSocket.getInputStream() );
-				BufferedReader bufferedReader = new BufferedReader( inputStreamReader );
 
-				area.setText( "client bericht ontvangen...\n" + area.getText() );
+				area.setText("Waiting...\n" + area.getText());
+				clientSocket = serverSocket.accept();
+
+				InputStreamReader inputStreamReader = new InputStreamReader(clientSocket.getInputStream());
+				BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+				area.setText("client bericht ontvangen...\n" + area.getText());
 				message = bufferedReader.readLine();
-				area.setText( "client message is: " + message + "\n" + area.getText() );
-				
-				
-				OutputStreamWriter outputStreamWriter = new OutputStreamWriter( clientSocket.getOutputStream() );
-				BufferedWriter bufferedWriter = new BufferedWriter( outputStreamWriter );
-				PrintWriter writer = new PrintWriter( bufferedWriter, true );
-				
-				if( writer != null && writer.checkError() == false )
+				area.setText("client message is: " + message + "\n" + area.getText());
+
+				OutputStreamWriter outputStreamWriter = new OutputStreamWriter(clientSocket.getOutputStream());
+				BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
+				PrintWriter writer = new PrintWriter(bufferedWriter, true);
+
+				if (writer != null && writer.checkError() == false)
 				{
-					area.setText( "sending message back to client " + clientSocket.getInetAddress().getHostAddress() + "\n" + area.getText() );
-					writer.println( "server heeft je bericht ontvangen\r\n" );
+					area.setText("sending message back to client " + clientSocket.getInetAddress().getHostAddress() + "\n" + area.getText());
+					writer.println("server heeft je bericht ontvangen\r\n");
 				}
 
 				writer.close();
 			}
-			
-			catch( IOException e )
+
+			catch (IOException e)
 			{
-				area.setText( "Kan message niet lezen" + "\n" + area.getText() );
-				System.out.println( "Kan message niet lezen" );
+				area.setText("Kan message niet lezen" + "\n" + area.getText());
+				System.out.println("Kan message niet lezen");
 			}
-			
-			catch( Exception e )
+
+			catch (Exception e)
 			{
-				area.setText( e.getMessage() );
-				System.out.println( e.getMessage() );
+				area.setText(e.getMessage());
+				System.out.println(e.getMessage());
 			}
-			
-			
-			
+
 			try
 			{
 				Thread.sleep(500);
 			}
-			
+
 			catch (InterruptedException e)
 			{
-				area.setText( "Thread interrupted during sleep." + "\n" + area.getText() );
+				area.setText("Thread interrupted during sleep." + "\n" + area.getText());
 				e.printStackTrace();
 			}
 		}
